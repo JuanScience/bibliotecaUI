@@ -10,45 +10,45 @@ let user = {};
 
 /** Elementos  */
 
-function elementosSalir(){
+function elementosSalir() {
   user = {};
   document.getElementById("barraAdministrador").style.display = 'none';
   document.getElementById("barraUsuario").style.display = 'none';
   document.getElementById("barraSalir").style.display = 'none';
-  
+
   //esconder elementos de listado
-  
-  document.getElementById("ingreso").style.display = 'inline'; 
+
+  document.getElementById("ingreso").style.display = 'inline';
   document.querySelector("#formLogin").reset();
-  setInterval("location.reload()",10);
+  setInterval("location.reload()", 10);
 };
 
-function elementosAdministrador(){
+function elementosAdministrador() {
   console.log("admin....");
-  document.getElementById("barraAdministrador").style.display = ''; 
+  document.getElementById("barraAdministrador").style.display = '';
   document.getElementById("barraUsuario").style.display = 'none';
   document.getElementById("barraSalir").style.display = '';
-  
+
   //esconder elementos de listado
-  
-  document.getElementById("ingreso").style.display = 'none'; 
+
+  document.getElementById("ingreso").style.display = 'none';
 };
 
-function elementosUsuario(){
+function elementosUsuario() {
   console.log("usuario....");
-  document.getElementById("barraAdministrador").style.display = 'none'; 
+  document.getElementById("barraAdministrador").style.display = 'none';
   document.getElementById("barraUsuario").style.display = '';
   document.getElementById("barraSalir").style.display = '';
-  
+
   //esconder elementos de listado
-  
-  document.getElementById("ingreso").style.display = 'none'; 
+
+  document.getElementById("ingreso").style.display = 'none';
 };
 
 const login = () => {
   const formData = new FormData(document.querySelector("#formLogin"));
   if (!formData.get("nombre").length || !formData.get("pass").length) {
-    alertManager("error",  "Llena todos los campos");
+    alertManager("error", "Llena todos los campos");
     return;
   }
   document.querySelector("#formLogin").innerHTML = "";
@@ -69,11 +69,11 @@ const login = () => {
       user = {};
     })
     .then((res) => {
-      user = res;      
+      user = res;
       if (user && user.tipo == 0) {
         alertManager("success", "Bienvenidx " + res.nombreUsuario);
         elementosAdministrador();
-      } else if (user && user.tipo == 1){
+      } else if (user && user.tipo == 1) {
         alertManager("success", "Bienvenidx " + res.nombreUsuario);
         elementosUsuario();
       } else {
@@ -85,16 +85,16 @@ const login = () => {
 
 /**Administradores */
 
-function listarAutores(){
+function listarAutores() {
   fetch(API_URL + "/autores", {
     method: "GET",
-    headers: {"Content-Type": "application/json",},
+    headers: { "Content-Type": "application/json", },
   })
-  .then((res) => res.json())
+    .then((res) => res.json())
     .catch((error) => {
       alertManager("error", "No se pudo traer datos");
     })
-    .then((res) => {      
+    .then((res) => {
       listaAutores = res;
       const tableResult = document.createElement('table');
       tableResult.classList.add('table');
@@ -124,10 +124,10 @@ function listarAutores(){
         boton.setAttribute("data-bs-toggle", "modal");
         boton.setAttribute("data-bs-target", "#Modal");
         boton.setAttribute("onclick", "updateAuthorModal(this.id)")
-        
+
         columna.appendChild(boton);
         fila.appendChild(columna);
-        
+
         columna = document.createElement('td');
         boton = document.createElement('button');
         boton.innerText = "Eliminar";
@@ -135,9 +135,9 @@ function listarAutores(){
         columna.appendChild(boton);
         fila.appendChild(columna);
         tableResult.appendChild(fila);
+        boton.setAttribute("id", author.idAutor);
+        boton.setAttribute("onclick", "deleteAuthor(this.id)")
 
-        //updateModalAutors
-        
       });
       var list = document.getElementById("lienzo");     // Get the target element
       list.innerHTML = "";                            // Remove previous content
@@ -146,48 +146,48 @@ function listarAutores(){
     });
 };
 
-function listarLibros(){
+function listarLibros() {
   fetch(API_URL + "/libros", {
     method: "GET",
-    headers: {"Content-Type": "application/json",},
+    headers: { "Content-Type": "application/json", },
   })
-  .then((res) => res.json())
+    .then((res) => res.json())
     .catch((error) => {
       alertManager("error", "No se pudo traer datos");
     })
-    .then((res) => {    
+    .then((res) => {
       pintarLibros(res);
     });
 };
 
-function pintarLibros(datos){
+function pintarLibros(datos) {
   console.log(datos);
 }
 
-function listarUsuarios(){
+function listarUsuarios() {
   fetch(API_URL + "/usuarios", {
     method: "GET",
-    headers: {"Content-Type": "application/json",},
+    headers: { "Content-Type": "application/json", },
   })
-  .then((res) => res.json())
+    .then((res) => res.json())
     .catch((error) => {
       alertManager("error", "No se pudo traer datos");
     })
-    .then((res) => {    
+    .then((res) => {
       pintarUsuarios(res);
     });
 };
 
-function pintarUsuarios(datos){
+function pintarUsuarios(datos) {
   console.log(datos);
 }
 
 /**Usuarios */
 
-function buscar(){
+function buscar() {
   const formDataS = new FormData(document.querySelector("#formSearch"));
   if (!formDataS.get("cc").length) {
-    alertManager("error",  "Llena la barra de búsqueda");
+    alertManager("error", "Llena la barra de búsqueda");
     return;
   }
   const busqueda = formDataS.get("cc");
@@ -206,7 +206,7 @@ function buscar(){
     })
 };
 
-function buscarLibros(obAutor){
+function buscarLibros(obAutor) {
   fetch(API_URL + "/id_Autor/" + obAutor.idAutor, {
     method: "GET",
     headers: {
@@ -222,7 +222,7 @@ function buscarLibros(obAutor){
     })
 };
 
-function pintarBusqueda(obAutor, ListLibros){
+function pintarBusqueda(obAutor, ListLibros) {
   console.log(obAutor);
   console.log(ListLibros);
 };
@@ -241,19 +241,14 @@ const alertManager = (typeMsg, message) => {
   }, 3500);
 };
 
-function guardarCambios(e){
-  var modalElement = document.getElementById("Modal");
-  console.log(modalElement);
-}
-
-function updateAuthorModal(id){
+function updateAuthorModal(id) {
   const found = listaAutores.find(element => element.idAutor == id);
-  var titleModal = document.getElementById("TitleModal");  
+  var titleModal = document.getElementById("TitleModal");
   titleModal.innerHTML = "Actualizar Autor";
-  
+
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
-  
+
   const formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
@@ -269,7 +264,7 @@ function updateAuthorModal(id){
 
   const ccLabel = document.createElement('label');
   ccLabel.innerHTML = "Cédula: ";
-  formulario.appendChild(ccLabel);  
+  formulario.appendChild(ccLabel);
   const ccInput = document.createElement('input');
   ccInput.setAttribute("id", "ccInput");
   ccInput.value = found.cedula;
@@ -278,7 +273,7 @@ function updateAuthorModal(id){
 
   const nombreLabel = document.createElement('label');
   nombreLabel.innerHTML = "Nombre Completo: ";
-  formulario.appendChild(nombreLabel);  
+  formulario.appendChild(nombreLabel);
   const nombreInput = document.createElement('input');
   nombreInput.setAttribute("id", "nombreInput");
   nombreInput.value = found.nombreCompleto;
@@ -287,13 +282,13 @@ function updateAuthorModal(id){
 
   const nacionLabel = document.createElement('label');
   nacionLabel.innerHTML = "Nacionalidad: ";
-  formulario.appendChild(nacionLabel);  
+  formulario.appendChild(nacionLabel);
   const nacionInput = document.createElement('input');
   nacionInput.setAttribute("id", "nacionInput");
   nacionInput.value = found.nacionalidad;
   nacionInput.required = true;
   formulario.appendChild(nacionInput);
-  
+
   contentModal.appendChild(formulario);
 
   var boton = document.getElementById("modalButton");
@@ -301,14 +296,14 @@ function updateAuthorModal(id){
   boton.setAttribute("onclick", "updateAuthor()");
 }
 
-function updateAuthor(x){
+function updateAuthor() {
   var idAuthor = document.getElementById("idInput").value;
   var cedula = document.getElementById("ccInput").value;
   var nombre = document.getElementById("nombreInput").value;
   var nacion = document.getElementById("nacionInput").value;
-  
-  var objetoAutor = {idAutor:idAuthor, cedula, nombreCompleto:nombre, nacionalidad:nacion};
-  
+
+  var objetoAutor = { idAutor: idAuthor, cedula, nombreCompleto: nombre, nacionalidad: nacion };
+
   console.log(objetoAutor);
 
   fetch(API_URL + "/autor/update", {
@@ -328,4 +323,18 @@ function updateAuthor(x){
       console.log(error);
     })
 }
+
+function deleteAuthor(id) {
+  fetch(API_URL + "/autor/delete/" + id,
+    method = 'DELETE',
+  ).then((resp)=>{
+    if(res && resp.ok){
+      alertManager("succes", "Autor borrado");
+      listarAutores();
+    }
+  }).catch((e)=>{
+    alertManager("error", "Autor no borrrado");
+  })
+}
+
 
