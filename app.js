@@ -325,21 +325,21 @@ function updateAuthor() {
 }
 
 function deleteAuthor(id) {
-  fetch(API_URL + "/autor/delete/" + id,
-    method = 'DELETE',
-    headers= {
-      "tipo": user.tipo
-    }
-  ).then((resp)=>{
-    if(resp && resp.ok){
-      console.log(resp);
-      alertManager("succes", "Autor borrado");
-      listarAutores();
-    }
-  }).catch((e)=>{
-    console.log(e);
-    alertManager("error", "Autor no borrrado");
-  })
+  fetch(API_URL + "/autor/delete/" + id, {
+      method: "DELETE",
+      headers: {
+        "tipo": user.tipo
+      }
+    }).then((resp) => {
+      if (resp && resp.ok) {
+        console.log(resp);
+        alertManager("succes", "Autor borrado");
+        listarAutores();
+      }
+    }).catch((e) => {
+      console.log(e);
+      alertManager("error", "Autor no borrrado");
+    })
 }
 
 
