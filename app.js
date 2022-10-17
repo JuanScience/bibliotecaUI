@@ -327,6 +327,9 @@ function updateAuthor() {
 function deleteAuthor(id) {
   fetch(API_URL + "/autor/delete/" + id,
     method = 'DELETE',
+    headers= {
+      "tipo": user.tipo
+    }
   ).then((resp)=>{
     if(res && resp.ok){
       alertManager("succes", "Autor borrado");
