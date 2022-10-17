@@ -331,11 +331,13 @@ function deleteAuthor(id) {
       "tipo": user.tipo
     }
   ).then((resp)=>{
-    if(res && resp.ok){
+    if(resp && resp.ok){
+      console.log(resp);
       alertManager("succes", "Autor borrado");
       listarAutores();
     }
   }).catch((e)=>{
+    console.log(e);
     alertManager("error", "Autor no borrrado");
   })
 }
