@@ -1,7 +1,9 @@
 const FRONT_URL = "http://localhost:5500/bibliotecaUI";
 const API_URL = "http://localhost:6969";
 const HTMLResponse = document.querySelector("#lienzo");
-const titulosAutores = ['ISBN', 'Editorial', 'Género', 'Año', '', ''];
+
+const encabezadosAutores = ['ID', 'Cédula', 'Nombre Completo', 'Nacionalidad', '', ''];
+const encabezadosLibros = ['ISBN', 'Editorial', 'Género', 'Año', '', ''];
 
 let listaAutores = [];
 let user = {};
@@ -56,7 +58,6 @@ const login = () => {
   };
   fetch(API_URL + "/" + usuario.Nombre + "/" + usuario.Pass, {
     method: "POST",
-    //Sbody: JSON.stringify(usuario),
     headers: {
       "Content-Type": "application/json",
     },
@@ -100,7 +101,7 @@ function listarAutores(){
       tableResult.classList.add('table-borderless');
       let fila = document.createElement('tr');
       fila.classList.add('table-dark');
-      titulosAutores.forEach((t) => {
+      encabezadosAutores.forEach((t) => {
         let columna = document.createElement('th');
         columna.appendChild(document.createTextNode(t));
         fila.appendChild(columna);
@@ -245,11 +246,86 @@ function guardarCambios(e){
   console.log(modalElement);
 }
 
-function updateAuthorModal(e){
-  const found = listaAutores.filter(element => element.idAutor == e);
-  var list = document.getElementById("TitleModal");
-  list.innerHTML = "Actualizar Autor";
-  list = document.getElementById("contentModal");
-  list.innerHTML = "";  
+function updateAuthorModal(id){
+  const found = listaAutores.find(element => element.idAutor == id);
+  var titleModal = document.getElementById("TitleModal");  
+  titleModal.innerHTML = "Actualizar Autor";
+  
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+  
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const idLabel = document.createElement('label');
+  idLabel.innerHTML = "ID: ";
+  formulario.appendChild(idLabel);
+  const idInput = document.createElement('input');
+  idInput.setAttribute("id", "idInput");
+  idInput.disabled = true;
+  idInput.value = found.idAutor;
+  formulario.appendChild(idInput);
+
+  const ccLabel = document.createElement('label');
+  ccLabel.innerHTML = "Cédula: ";
+  formulario.appendChild(ccLabel);  
+  const ccInput = document.createElement('input');
+  ccInput.setAttribute("id", "ccInput");
+  ccInput.value = found.cedula;
+  ccInput.required = true;
+  formulario.appendChild(ccInput);
+
+  const nombreLabel = document.createElement('label');
+  nombreLabel.innerHTML = "Nombre Completo: ";
+  formulario.appendChild(nombreLabel);  
+  const nombreInput = document.createElement('input');
+  nombreInput.setAttribute("id", "nombreInput");
+  nombreInput.value = found.nombreCompleto;
+  nombreInput.required = true;
+  formulario.appendChild(nombreInput);
+
+  const nacionLabel = document.createElement('label');
+  nacionLabel.innerHTML = "Nacionalidad: ";
+  formulario.appendChild(nacionLabel);  
+  const nacionInput = document.createElement('input');
+  nacionInput.setAttribute("id", "nacionInput");
+  nacionInput.value = found.nacionalidad;
+  nacionInput.required = true;
+  formulario.appendChild(nacionInput);
+  
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Actualizar";
+  boton.setAttribute("onclick", "updateAuthor()");
+}
+
+function updateAuthor(x){
+  var idAuthor = document.getElementById("idInput").value;
+  var cedula = document.getElementById("ccInput").value;
+  var nombre = document.getElementById("nombreInput").value;
+  var nacion = document.getElementById("nacionInput").value;
+  
+  var objetoAutor = {idAutor:idAuthor, cedula, nombreCompleto:nombre, nacionalidad:nacion};
+  
+  console.log(objetoAutor);
+
+  fetch(API_URL + "/autor/update", {
+    method: "PUT",
+    body: JSON.stringify(objetoAutor),
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      listarAutores();
+    })
+    .catch((error) => {
+      alertManager("error", "Autor no encontrado");
+      console.log(error);
+    })
 }
 
