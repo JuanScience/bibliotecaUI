@@ -1,22 +1,9 @@
 const FRONT_URL = "http://localhost:5500/bibliotecaUI";
 const API_URL = "http://localhost:6969";
 const HTMLResponse = document.querySelector("#lienzo");
-const ul = document.createElement('ul');
+const titulosAutores = ['ISBN', 'Editorial', 'Género', 'Año', '', ''];
 
 let user = {};
-
-window.addEventListener('load', function() {
-  console.log("Load....");
-  document.querySelector("#formLogin").reset();
-  if (user && user.tipo == 0 && window.location == "http://localhost:5500/bibliotecaUI/administrador.html") {    
-    alertManager("success", "Bienvenidx " + res.nombreUsuario);
-    console.log(user.nombre + "Admin");
-    console.log("Bienvenidx " + res.nombreUsuario);
-  } else if (user && user.tipo == 1 && window.location == "http://localhost:5500/bibliotecaUI/empleado.html"){
-    alertManager("success", "Bienvenidx " + res.nombreUsuario);
-    console.log(user.nombre + "Emple");
-  }
-});
 
 /** Elementos  */
 
@@ -105,24 +92,50 @@ function listarAutores(){
     .catch((error) => {
       alertManager("error", "No se pudo traer datos");
     })
-    .then((res) => {
-      res.forEach((a) => {
-        let elem = document.createElement('li');
-        elem.appendChild(
-          document.createTextNode(`${res.idAutor} ${res.cedula} ${res.nombreCompleto} ${res.nacionalidad}`)
-        );
-        ul.appendChild(elem); 
+    .then((res) => {      
+      console.log(res);
+      const tableResult = document.createElement('table');
+      tableResult.classList.add('table');
+      tableResult.classList.add('table-borderless');
+      let fila = document.createElement('tr');
+      fila.classList.add('table-dark');
+      titulosAutores.forEach((t) => {
+        let columna = document.createElement('th');
+        columna.appendChild(document.createTextNode(t));
+        fila.appendChild(columna);
       });
-      const listj = document.querySelector('#lienzo');
-      console.log(listj);
-      document.querySelector('#lienzo').remove;
+      tableResult.appendChild(fila);
+      res.forEach((a) => {
+        let fila = document.createElement('tr');
+        Object.values(a).forEach((i) => {
+          let columna = document.createElement('td');
+          columna.appendChild(document.createTextNode(i));
+          fila.appendChild(columna);
+        });
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Actualizar";
+        boton.setAttribute("id", "myInput");
+        boton.setAttribute("type", "button");
+        boton.setAttribute("class", "btn");
+        boton.setAttribute("class", "btn-primary");
+        boton.setAttribute("data-bs-toggle", "modal");
+        boton.setAttribute("data-bs-target", "#exampleModal");
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+        
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Eliminar";
 
-      while (listj.hasChildNodes()) {
-        listj.removeChild(listj.firstChild);
-      }
-      HTMLResponse.innerHTML = '';
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+        tableResult.appendChild(fila); 
+      });
+      var list = document.getElementById("lienzo");     // Get the target element
+      list.innerHTML = "";                            // Remove previous content
+      list.appendChild(tableResult); // Append your generated UL
 
-      HTMLResponse.appendChild(ul);
     });
 };
 
@@ -220,3 +233,5 @@ const alertManager = (typeMsg, message) => {
     alert.classList.remove(typeMsg);
   }, 3500);
 };
+
+
