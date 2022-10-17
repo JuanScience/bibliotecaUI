@@ -3,6 +3,7 @@ const API_URL = "http://localhost:6969";
 const HTMLResponse = document.querySelector("#lienzo");
 const titulosAutores = ['ISBN', 'Editorial', 'Género', 'Año', '', ''];
 
+let listaAutores = [];
 let user = {};
 
 /** Elementos  */
@@ -93,7 +94,7 @@ function listarAutores(){
       alertManager("error", "No se pudo traer datos");
     })
     .then((res) => {      
-      console.log(res);
+      listaAutores = res;
       const tableResult = document.createElement('table');
       tableResult.classList.add('table');
       tableResult.classList.add('table-borderless');
@@ -105,9 +106,9 @@ function listarAutores(){
         fila.appendChild(columna);
       });
       tableResult.appendChild(fila);
-      res.forEach((a) => {
+      res.forEach((author) => {
         let fila = document.createElement('tr');
-        Object.values(a).forEach((i) => {
+        Object.values(author).forEach((i) => {
           let columna = document.createElement('td');
           columna.appendChild(document.createTextNode(i));
           fila.appendChild(columna);
@@ -115,12 +116,14 @@ function listarAutores(){
         columna = document.createElement('td');
         boton = document.createElement('button');
         boton.innerText = "Actualizar";
-        boton.setAttribute("id", "myInput");
+        boton.setAttribute("id", author.idAutor);
         boton.setAttribute("type", "button");
         boton.setAttribute("class", "btn");
         boton.setAttribute("class", "btn-primary");
         boton.setAttribute("data-bs-toggle", "modal");
-        boton.setAttribute("data-bs-target", "#exampleModal");
+        boton.setAttribute("data-bs-target", "#Modal");
+        boton.setAttribute("onclick", "updateAuthorModal(this.id)")
+        
         columna.appendChild(boton);
         fila.appendChild(columna);
         
@@ -130,7 +133,10 @@ function listarAutores(){
 
         columna.appendChild(boton);
         fila.appendChild(columna);
-        tableResult.appendChild(fila); 
+        tableResult.appendChild(fila);
+
+        //updateModalAutors
+        
       });
       var list = document.getElementById("lienzo");     // Get the target element
       list.innerHTML = "";                            // Remove previous content
@@ -234,4 +240,16 @@ const alertManager = (typeMsg, message) => {
   }, 3500);
 };
 
+function guardarCambios(e){
+  var modalElement = document.getElementById("Modal");
+  console.log(modalElement);
+}
+
+function updateAuthorModal(e){
+  const found = listaAutores.filter(element => element.idAutor == e);
+  var list = document.getElementById("TitleModal");
+  list.innerHTML = "Actualizar Autor";
+  list = document.getElementById("contentModal");
+  list.innerHTML = "";  
+}
 
