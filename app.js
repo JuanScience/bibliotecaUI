@@ -11,6 +11,8 @@ let listaLibros = [];
 let listaUsuarios = [];
 let user = {};
 
+let authorFound = {};
+
 /** Elementos  */
 
 function elementosSalir() {
@@ -21,7 +23,7 @@ function elementosSalir() {
   document.getElementById("lienzoAccion").style.display = 'none';
   document.getElementById("ingreso").style.display = 'inline';
   document.querySelector("#formLogin").reset();
-  setInterval("location.reload()", 10);
+  window.location.reload();
 };
 
 function elementosAdministrador() {
@@ -40,14 +42,15 @@ function elementosUsuario() {
   document.getElementById("lienzoAccion").style.display = 'none';
 };
 
-const login = () => {
-  const formData = new FormData(document.querySelector("#formLogin"));
+function login() {
+  user = {};
+  var formData = new FormData(document.querySelector("#formLogin"));
   if (!formData.get("nombre").length || !formData.get("pass").length) {
     alertManager("error", "Llena todos los campos");
     return;
   }
   document.querySelector("#formLogin").innerHTML = "";
-  const usuario = {
+  var usuario = {
     Nombre: formData.get("nombre"),
     Pass: formData.get("pass"),
   };
@@ -74,6 +77,7 @@ const login = () => {
       } else {
         alertManager("error", "Vuelva a intetarlo");
         elementosSalir();
+        user = {};
       }
     });
 };
@@ -91,7 +95,7 @@ function listarAutores() {
     })
     .then((res) => {
       listaAutores = res;
-      const tableResult = document.createElement('table');
+      var tableResult = document.createElement('table');
       tableResult.classList.add('table');
       tableResult.classList.add('table-borderless');
       let fila = document.createElement('tr');
@@ -158,7 +162,7 @@ function listarLibros() {
     })
     .then((res) => {
       listaLibros = res;
-      const tableResult = document.createElement('table');
+      var tableResult = document.createElement('table');
       tableResult.classList.add('table');
       tableResult.classList.add('table-borderless');
       let fila = document.createElement('tr');
@@ -224,7 +228,7 @@ function listarUsuarios() {
     })
     .then((res) => {
       listaUsuarios = res;
-      const tableResult = document.createElement('table');
+      var tableResult = document.createElement('table');
       tableResult.classList.add('table');
       tableResult.classList.add('table-borderless');
       let fila = document.createElement('tr');
@@ -280,35 +284,47 @@ function listarUsuarios() {
     });
 };
 
-/**Usuarios *//////////////////////////////////////////////
+/**Usuarios */
+
 
 function buscar() {
-  const formDataS = new FormData(document.querySelector("#formSearch"));
-  if (!formDataS.get("cc").length) {
-    alertManager("error", "Llena la barra de búsqueda");
-    return;
+  var busqueda = API_URL + "/cedula/" + document.getElementById("textcc").value;
+  console.log(busqueda);
+  if (busqueda === undefined) {
+    alertManager("error", "Ingrese la cédula");
   }
-  const busqueda = formDataS.get("cc");
-  fetch(API_URL + "/cedula/" + busqueda, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((res) => res.json())
-    .catch((error) => {
-      alertManager("error", "Autor no encontrado");
-    })
-    .then((res) => {
-      obAutor = res;
-      buscarLibros(obAutor);
-    })
+  else {
+    fetch(busqueda, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => res.json())
+        .catch((error) => {
+        alertManager("error", "Falla en la búsqueda");
+      }).then((res) => {
+        if (!res) {
+          console.log(res, "Autor no encontrado");
+        }else{
+          console.log(res, "Primero");
+          alertManager("error", "Greatttttttt");
+        }
+        elementosUsuario();
+          
+        //obAutor = res;
+        
+        //buscarLibros(obAutor);        
+        
+      })
+  }
+
 };
 
 function buscarLibros(obAutor) {
   fetch(API_URL + "/id_Autor/" + obAutor.idAutor, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
   }).then((res) => res.json())
     .catch((error) => {
@@ -326,8 +342,8 @@ function pintarBusqueda(obAutor, ListLibros) {
 };
 
 /** ALERT */
-const alertManager = (typeMsg, message) => {
-  const alert = document.querySelector("#alert");
+var alertManager = (typeMsg, message) => {
+  var alert = document.querySelector("#alert");
 
   alert.innerHTML = message || "Se produjo cambios";
   alert.classList.add(typeMsg);
@@ -342,48 +358,48 @@ const alertManager = (typeMsg, message) => {
 /** Modal */
 
 function updateAuthorModal(id) {
-  const found = listaAutores.find(element => element.idAutor == id);
+  var found = listaAutores.find(element => element.idAutor == id);
   var titleModal = document.getElementById("TitleModal");
   titleModal.innerHTML = "Actualizar Autor";
 
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const idLabel = document.createElement('label');
+  var idLabel = document.createElement('label');
   idLabel.innerHTML = "ID: ";
   formulario.appendChild(idLabel);
-  const idInput = document.createElement('input');
+  var idInput = document.createElement('input');
   idInput.setAttribute("id", "idInput");
   idInput.disabled = true;
   idInput.value = found.idAutor;
   formulario.appendChild(idInput);
 
-  const ccLabel = document.createElement('label');
+  var ccLabel = document.createElement('label');
   ccLabel.innerHTML = "Cédula: ";
   formulario.appendChild(ccLabel);
-  const ccInput = document.createElement('input');
+  var ccInput = document.createElement('input');
   ccInput.setAttribute("id", "ccInput");
   ccInput.value = found.cedula;
   ccInput.required = true;
   formulario.appendChild(ccInput);
 
-  const nombreLabel = document.createElement('label');
+  var nombreLabel = document.createElement('label');
   nombreLabel.innerHTML = "Nombre Completo: ";
   formulario.appendChild(nombreLabel);
-  const nombreInput = document.createElement('input');
+  var nombreInput = document.createElement('input');
   nombreInput.setAttribute("id", "nombreInput");
   nombreInput.value = found.nombreCompleto;
   nombreInput.required = true;
   formulario.appendChild(nombreInput);
 
-  const nacionLabel = document.createElement('label');
+  var nacionLabel = document.createElement('label');
   nacionLabel.innerHTML = "Nacionalidad: ";
   formulario.appendChild(nacionLabel);
-  const nacionInput = document.createElement('input');
+  var nacionInput = document.createElement('input');
   nacionInput.setAttribute("id", "nacionInput");
   nacionInput.value = found.nacionalidad;
   nacionInput.required = true;
@@ -391,72 +407,74 @@ function updateAuthorModal(id) {
 
   contentModal.appendChild(formulario);
 
+  document.getElementById("ccInput").required = true;
+
   var boton = document.getElementById("modalButton");
   boton.innerHTML = "Actualizar";
   boton.setAttribute("onclick", "updateAuthor()");
 }
 
 function updateBookModal(id) {
-  const found = listaLibros.find(element => element.idLibro == id);
+  var found = listaLibros.find(element => element.idLibro == id);
   var titleModal = document.getElementById("TitleModal");
   titleModal.innerHTML = "Actualizar Libro";
 
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const idLabel = document.createElement('label');
+  var idLabel = document.createElement('label');
   idLabel.innerHTML = "ID: ";
   formulario.appendChild(idLabel);
-  const idInput = document.createElement('input');
+  var idInput = document.createElement('input');
   idInput.setAttribute("id", "idInput");
   idInput.disabled = true;
   idInput.value = found.idLibro;
   formulario.appendChild(idInput);
 
-  const isbnLabel = document.createElement('label');
+  var isbnLabel = document.createElement('label');
   isbnLabel.innerHTML = "ISBN: ";
   formulario.appendChild(isbnLabel);
-  const isbnInput = document.createElement('input');
+  var isbnInput = document.createElement('input');
   isbnInput.setAttribute("id", "isbnInput");
   isbnInput.value = found.isbn;
   isbnInput.required = true;
   formulario.appendChild(isbnInput);
 
-  const editorialLabel = document.createElement('label');
+  var editorialLabel = document.createElement('label');
   editorialLabel.innerHTML = "Editorial: ";
   formulario.appendChild(editorialLabel);
-  const editorialInput = document.createElement('input');
+  var editorialInput = document.createElement('input');
   editorialInput.setAttribute("id", "editorialInput");
   editorialInput.value = found.editorial;
   editorialInput.required = true;
   formulario.appendChild(editorialInput);
 
-  const generoLabel = document.createElement('label');
+  var generoLabel = document.createElement('label');
   generoLabel.innerHTML = "Género: ";
   formulario.appendChild(generoLabel);
-  const generoInput = document.createElement('input');
+  var generoInput = document.createElement('input');
   generoInput.setAttribute("id", "generoInput");
   generoInput.value = found.genero;
   generoInput.required = true;
   formulario.appendChild(generoInput);
 
-  const yearLabel = document.createElement('label');
+  var yearLabel = document.createElement('label');
   yearLabel.innerHTML = "Fecha Publicación: ";
   formulario.appendChild(yearLabel);
-  const yearInput = document.createElement('input');
+  var yearInput = document.createElement('input');
   yearInput.setAttribute("id", "yearInput");
   yearInput.value = found.year;
   yearInput.required = true;
   formulario.appendChild(yearInput);
 
-  const idAutorLabel = document.createElement('label');
+  var idAutorLabel = document.createElement('label');
   idAutorLabel.innerHTML = "ID Autor: ";
   formulario.appendChild(idAutorLabel);
-  const idAutorInput = document.createElement('input');
+  var idAutorInput = document.createElement('input');
   idAutorInput.setAttribute("id", "idAutorInput");
   idAutorInput.value = found.idAutor;
   idAutorInput.required = true;
@@ -470,48 +488,48 @@ function updateBookModal(id) {
 }
 
 function updateUserModal(id) {
-  const found = listaUsuarios.find(element => element.idUsuario == id);
+  var found = listaUsuarios.find(element => element.idUsuario == id);
   var titleModal = document.getElementById("TitleModal");
   titleModal.innerHTML = "Actualizar Usuario";
 
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const idLabel = document.createElement('label');
+  var idLabel = document.createElement('label');
   idLabel.innerHTML = "ID: ";
   formulario.appendChild(idLabel);
-  const idInput = document.createElement('input');
+  var idInput = document.createElement('input');
   idInput.setAttribute("id", "idInput");
   idInput.disabled = true;
   idInput.value = found.idUsuario;
   formulario.appendChild(idInput);
 
-  const nombreLabel = document.createElement('label');
+  var nombreLabel = document.createElement('label');
   nombreLabel.innerHTML = "Nombre de Usuario: ";
   formulario.appendChild(nombreLabel);
-  const nombreInput = document.createElement('input');
+  var nombreInput = document.createElement('input');
   nombreInput.setAttribute("id", "nombreInput");
   nombreInput.value = found.nombreUsuario;
   nombreInput.required = true;
   formulario.appendChild(nombreInput);
 
-  const passLabel = document.createElement('label');
+  var passLabel = document.createElement('label');
   passLabel.innerHTML = "Contraseña: ";
   formulario.appendChild(passLabel);
-  const passInput = document.createElement('input');
+  var passInput = document.createElement('input');
   passInput.setAttribute("id", "passInput");
   passInput.value = found.password;
   passInput.required = true;
   formulario.appendChild(passInput);
 
-  const tipoLabel = document.createElement('label');
+  var tipoLabel = document.createElement('label');
   tipoLabel.innerHTML = "Tipo Usuario: ";
   formulario.appendChild(tipoLabel);
-  const tipoInput = document.createElement('input');
+  var tipoInput = document.createElement('input');
   tipoInput.setAttribute("id", "tipoInput");
   tipoInput.value = found.tipo;
   tipoInput.required = true;
@@ -667,30 +685,30 @@ function crearAuthorModal() {
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const ccLabel = document.createElement('label');
+  var ccLabel = document.createElement('label');
   ccLabel.innerHTML = "Cédula: ";
   formulario.appendChild(ccLabel);
-  const ccInput = document.createElement('input');
+  var ccInput = document.createElement('input');
   ccInput.setAttribute("id", "ccInput");
   ccInput.required = true;
   formulario.appendChild(ccInput);
 
-  const nombreLabel = document.createElement('label');
+  var nombreLabel = document.createElement('label');
   nombreLabel.innerHTML = "Nombre Completo: ";
   formulario.appendChild(nombreLabel);
-  const nombreInput = document.createElement('input');
+  var nombreInput = document.createElement('input');
   nombreInput.setAttribute("id", "nombreInput");
   nombreInput.required = true;
   formulario.appendChild(nombreInput);
 
-  const nacionLabel = document.createElement('label');
+  var nacionLabel = document.createElement('label');
   nacionLabel.innerHTML = "Nacionalidad: ";
   formulario.appendChild(nacionLabel);
-  const nacionInput = document.createElement('input');
+  var nacionInput = document.createElement('input');
   nacionInput.setAttribute("id", "nacionInput");
   nacionInput.required = true;
   formulario.appendChild(nacionInput);
@@ -709,46 +727,46 @@ function crearBookModal() {
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const isbnLabel = document.createElement('label');
+  var isbnLabel = document.createElement('label');
   isbnLabel.innerHTML = "ISBN: ";
   formulario.appendChild(isbnLabel);
-  const isbnInput = document.createElement('input');
+  var isbnInput = document.createElement('input');
   isbnInput.setAttribute("id", "isbnInput");
   isbnInput.required = true;
   formulario.appendChild(isbnInput);
 
-  const editorialLabel = document.createElement('label');
+  var editorialLabel = document.createElement('label');
   editorialLabel.innerHTML = "Editorial: ";
   formulario.appendChild(editorialLabel);
-  const editorialInput = document.createElement('input');
+  var editorialInput = document.createElement('input');
   editorialInput.setAttribute("id", "editorialInput");
   editorialInput.required = true;
   formulario.appendChild(editorialInput);
 
-  const generoLabel = document.createElement('label');
+  var generoLabel = document.createElement('label');
   generoLabel.innerHTML = "Género: ";
   formulario.appendChild(generoLabel);
-  const generoInput = document.createElement('input');
+  var generoInput = document.createElement('input');
   generoInput.setAttribute("id", "generoInput");
   generoInput.required = true;
   formulario.appendChild(generoInput);
 
-  const yearLabel = document.createElement('label');
+  var yearLabel = document.createElement('label');
   yearLabel.innerHTML = "Fecha Publicación: ";
   formulario.appendChild(yearLabel);
-  const yearInput = document.createElement('input');
+  var yearInput = document.createElement('input');
   yearInput.setAttribute("id", "yearInput");
   yearInput.required = true;
   formulario.appendChild(yearInput);
 
-  const idAutorLabel = document.createElement('label');
+  var idAutorLabel = document.createElement('label');
   idAutorLabel.innerHTML = "ID Autor: ";
   formulario.appendChild(idAutorLabel);
-  const idAutorInput = document.createElement('input');
+  var idAutorInput = document.createElement('input');
   idAutorInput.setAttribute("id", "idAutorInput");
   idAutorInput.required = true;
   formulario.appendChild(idAutorInput);
@@ -767,30 +785,30 @@ function crearUserModal() {
   var contentModal = document.getElementById("contentModal");
   contentModal.innerHTML = "";
 
-  const formulario = document.createElement('form');
+  var formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
 
-  const nombreLabel = document.createElement('label');
+  var nombreLabel = document.createElement('label');
   nombreLabel.innerHTML = "Nombre de Usuario: ";
   formulario.appendChild(nombreLabel);
-  const nombreInput = document.createElement('input');
+  var nombreInput = document.createElement('input');
   nombreInput.setAttribute("id", "nombreInput");
   nombreInput.required = true;
   formulario.appendChild(nombreInput);
 
-  const passLabel = document.createElement('label');
+  var passLabel = document.createElement('label');
   passLabel.innerHTML = "Contraseña: ";
   formulario.appendChild(passLabel);
-  const passInput = document.createElement('input');
+  var passInput = document.createElement('input');
   passInput.setAttribute("id", "passInput");
   passInput.required = true;
   formulario.appendChild(passInput);
 
-  const tipoLabel = document.createElement('label');
+  var tipoLabel = document.createElement('label');
   tipoLabel.innerHTML = "Tipo Usuario: ";
   formulario.appendChild(tipoLabel);
-  const tipoInput = document.createElement('input');
+  var tipoInput = document.createElement('input');
   tipoInput.setAttribute("id", "tipoInput");
   tipoInput.required = true;
   formulario.appendChild(tipoInput);
@@ -806,7 +824,7 @@ function crearAuthor(){
   var cedula = document.getElementById("ccInput").value;
   var nombre = document.getElementById("nombreInput").value;
   var nacion = document.getElementById("nacionInput").value;
-
+  console.log(cedula, nombre, nacion);
   fetch(`${API_URL}/autor/create/${nombre}/${nacion}/${cedula}`, {
     method: "POST",
     headers: {
@@ -833,7 +851,7 @@ function crearBook(){
   var year = document.getElementById("yearInput").value;
   var id_Autor = document.getElementById("idAutorInput").value;
 
-  fetch(`${API_URL}/autor/create/${genero}/${editorial}/${isbn}/${year}/${id_Autor}`, {
+  fetch(`${API_URL}/libro/create/${genero}/${editorial}/${isbn}/${year}/${id_Autor}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -843,13 +861,12 @@ function crearBook(){
     .then((res) => {
       alertManager("success", "Libro creado");
       console.log(res);
-      listarAutores();
+      listarLibros();
     })
     .catch((error) => {
       alertManager("error", "Libro no creado");
       console.log(error);
     })
-
 }
 
 function crearUser(){
