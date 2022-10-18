@@ -338,7 +338,7 @@ function deleteAuthor(id) {
     }).then((resp) => {
       if (resp && resp.ok) {
         console.log(resp);
-        alertManager("succes", "Autor borrado");
+        alertManager("success", "Autor borrado");
         listarAutores();
       }
     }).catch((e) => {
@@ -357,14 +357,6 @@ function crearAuthorModal() {
   const formulario = document.createElement('form');
   formulario.setAttribute("id", "formActualizar");
   formulario.setAttribute("class", "form-group");
-
-  const idLabel = document.createElement('label');
-  idLabel.innerHTML = "ID: ";
-  formulario.appendChild(idLabel);
-  const idInput = document.createElement('input');
-  idInput.setAttribute("id", "idInput");
-  idInput.disabled = true;
-  formulario.appendChild(idInput);
 
   const ccLabel = document.createElement('label');
   ccLabel.innerHTML = "Cédula: ";
@@ -398,5 +390,29 @@ function crearAuthorModal() {
 }
 
 function crearAuthor(){
-  console.log('test');
+  var cedula = document.getElementById("ccInput").value;
+  var nombre = document.getElementById("nombreInput").value;
+  var nacion = document.getElementById("nacionInput").value;
+
+  var objetoAutor = { cedula, nombreCompleto: nombre, nacionalidad: nacion };
+
+  console.log(objetoAutor);
+
+  fetch(`${API_URL}/autor/create/${nombre}/${nacion}/${cedula}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      alertManager("success", "Autor no creado");
+      console.log(res);
+      listarAutores();
+    })
+    .catch((error) => {
+      alertManager("error", "Autor no creado");
+      console.log(error);
+    })
+
 }
