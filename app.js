@@ -143,6 +143,11 @@ function listarAutores() {
       list.innerHTML = "";                            // Remove previous content
       list.appendChild(tableResult); // Append your generated UL
 
+      var botonLienzo = document.getElementById("lienzoAccion");
+      botonLienzo.setAttribute("onclick", "crearAuthorModal()");
+      botonLienzo.setAttribute("data-bs-toggle", "modal");
+      botonLienzo.setAttribute("data-bs-target", "#Modal");
+      botonLienzo.innerHTML="Crear Autor"
     });
 };
 
@@ -342,4 +347,56 @@ function deleteAuthor(id) {
     })
 }
 
+function crearAuthorModal() {
+  var titleModal = document.getElementById("TitleModal");
+  titleModal.innerHTML = "Actualizar Autor";
 
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const idLabel = document.createElement('label');
+  idLabel.innerHTML = "ID: ";
+  formulario.appendChild(idLabel);
+  const idInput = document.createElement('input');
+  idInput.setAttribute("id", "idInput");
+  idInput.disabled = true;
+  formulario.appendChild(idInput);
+
+  const ccLabel = document.createElement('label');
+  ccLabel.innerHTML = "Cédula: ";
+  formulario.appendChild(ccLabel);
+  const ccInput = document.createElement('input');
+  ccInput.setAttribute("id", "ccInput");
+  ccInput.required = true;
+  formulario.appendChild(ccInput);
+
+  const nombreLabel = document.createElement('label');
+  nombreLabel.innerHTML = "Nombre Completo: ";
+  formulario.appendChild(nombreLabel);
+  const nombreInput = document.createElement('input');
+  nombreInput.setAttribute("id", "nombreInput");
+  nombreInput.required = true;
+  formulario.appendChild(nombreInput);
+
+  const nacionLabel = document.createElement('label');
+  nacionLabel.innerHTML = "Nacionalidad: ";
+  formulario.appendChild(nacionLabel);
+  const nacionInput = document.createElement('input');
+  nacionInput.setAttribute("id", "nacionInput");
+  nacionInput.required = true;
+  formulario.appendChild(nacionInput);
+
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Crear";
+  boton.setAttribute("onclick", "crearAuthor()");
+}
+
+function crearAuthor(){
+  console.log('test');
+}
