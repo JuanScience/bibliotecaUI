@@ -406,7 +406,7 @@ function crearAuthor(){
     },
   }).then((res) => res.json())
     .then((res) => {
-      alertManager("success", "Autor no creado");
+      alertManager("success", "Autor creado");
       console.log(res);
       listarAutores();
     })
