@@ -3,9 +3,12 @@ const API_URL = "http://localhost:6969";
 const HTMLResponse = document.querySelector("#lienzo");
 
 const encabezadosAutores = ['ID', 'Cédula', 'Nombre Completo', 'Nacionalidad', '', ''];
-const encabezadosLibros = ['ISBN', 'Editorial', 'Género', 'Año', '', ''];
+const encabezadosLibros = ['ID', 'ISBN', 'Editorial', 'Género', 'Fecha Publicación', 'ID Autor', '', ''];
+const encabezadosUsuarios = ['ID', 'Nombre de Usuario', 'Contraseña', 'tipo', '', ''];
 
 let listaAutores = [];
+let listaLibros = [];
+let listaUsuarios = [];
 let user = {};
 
 /** Elementos  */
@@ -14,23 +17,17 @@ function elementosSalir() {
   user = {};
   document.getElementById("barraAdministrador").style.display = 'none';
   document.getElementById("barraUsuario").style.display = 'none';
-  document.getElementById("barraSalir").style.display = 'none';
-
-  //esconder elementos de listado
-
+  document.getElementById("barraSalir").style.display = 'none';  
+  document.getElementById("lienzoAccion").style.display = 'none';
   document.getElementById("ingreso").style.display = 'inline';
   document.querySelector("#formLogin").reset();
   setInterval("location.reload()", 10);
 };
 
 function elementosAdministrador() {
-  console.log("admin....");
   document.getElementById("barraAdministrador").style.display = '';
   document.getElementById("barraUsuario").style.display = 'none';
   document.getElementById("barraSalir").style.display = '';
-
-  //esconder elementos de listado
-
   document.getElementById("ingreso").style.display = 'none';
 };
 
@@ -39,10 +36,8 @@ function elementosUsuario() {
   document.getElementById("barraAdministrador").style.display = 'none';
   document.getElementById("barraUsuario").style.display = '';
   document.getElementById("barraSalir").style.display = '';
-
-  //esconder elementos de listado
-
   document.getElementById("ingreso").style.display = 'none';
+  document.getElementById("lienzoAccion").style.display = 'none';
 };
 
 const login = () => {
@@ -144,10 +139,11 @@ function listarAutores() {
       list.appendChild(tableResult); // Append your generated UL
 
       var botonLienzo = document.getElementById("lienzoAccion");
+      botonLienzo.style.display = '';
       botonLienzo.setAttribute("onclick", "crearAuthorModal()");
       botonLienzo.setAttribute("data-bs-toggle", "modal");
       botonLienzo.setAttribute("data-bs-target", "#Modal");
-      botonLienzo.innerHTML="Crear Autor"
+      botonLienzo.innerHTML="Crear Autor";
     });
 };
 
@@ -161,13 +157,61 @@ function listarLibros() {
       alertManager("error", "No se pudo traer datos");
     })
     .then((res) => {
-      pintarLibros(res);
+      listaLibros = res;
+      const tableResult = document.createElement('table');
+      tableResult.classList.add('table');
+      tableResult.classList.add('table-borderless');
+      let fila = document.createElement('tr');
+      fila.classList.add('table-dark');
+      encabezadosLibros.forEach((t) => {
+        let columna = document.createElement('th');
+        columna.appendChild(document.createTextNode(t));
+        fila.appendChild(columna);
+      });
+      tableResult.appendChild(fila);
+      res.forEach((book) => {
+        let fila = document.createElement('tr');
+        Object.values(book).forEach((i) => {
+          let columna = document.createElement('td');
+          columna.appendChild(document.createTextNode(i));
+          fila.appendChild(columna);
+        });
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Actualizar";
+        boton.setAttribute("id", book.idLibro);
+        boton.setAttribute("type", "button");
+        boton.setAttribute("class", "btn");
+        boton.setAttribute("class", "btn-primary");
+        boton.setAttribute("data-bs-toggle", "modal");
+        boton.setAttribute("data-bs-target", "#Modal");
+        boton.setAttribute("onclick", "updateBookModal(this.id)")
+
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Eliminar";
+
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+        tableResult.appendChild(fila);
+        boton.setAttribute("id", book.idLibro);
+        boton.setAttribute("onclick", "deleteBook(this.id)")
+      });
+      var list = document.getElementById("lienzo");
+      list.innerHTML = "";
+      list.appendChild(tableResult);
+
+      var botonLienzo = document.getElementById("lienzoAccion");
+      botonLienzo.style.display = '';
+      botonLienzo.setAttribute("onclick", "crearBookModal()");
+      botonLienzo.setAttribute("data-bs-toggle", "modal");
+      botonLienzo.setAttribute("data-bs-target", "#Modal");
+      botonLienzo.innerHTML="Crear Libro";
     });
 };
-
-function pintarLibros(datos) {
-  console.log(datos);
-}
 
 function listarUsuarios() {
   fetch(API_URL + "/usuarios", {
@@ -179,15 +223,64 @@ function listarUsuarios() {
       alertManager("error", "No se pudo traer datos");
     })
     .then((res) => {
-      pintarUsuarios(res);
+      listaUsuarios = res;
+      const tableResult = document.createElement('table');
+      tableResult.classList.add('table');
+      tableResult.classList.add('table-borderless');
+      let fila = document.createElement('tr');
+      fila.classList.add('table-dark');
+      encabezadosUsuarios.forEach((t) => {
+        let columna = document.createElement('th');
+        columna.appendChild(document.createTextNode(t));
+        fila.appendChild(columna);
+      });
+      tableResult.appendChild(fila);
+      res.forEach((user) => {
+        let fila = document.createElement('tr');
+        Object.values(user).forEach((i) => {
+          let columna = document.createElement('td');
+          columna.appendChild(document.createTextNode(i));
+          fila.appendChild(columna);
+        });
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Actualizar";
+        boton.setAttribute("id", user.idUsuario);
+        boton.setAttribute("type", "button");
+        boton.setAttribute("class", "btn");
+        boton.setAttribute("class", "btn-primary");
+        boton.setAttribute("data-bs-toggle", "modal");
+        boton.setAttribute("data-bs-target", "#Modal");
+        boton.setAttribute("onclick", "updateUserModal(this.id)")
+
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+
+        columna = document.createElement('td');
+        boton = document.createElement('button');
+        boton.innerText = "Eliminar";
+
+        columna.appendChild(boton);
+        fila.appendChild(columna);
+        tableResult.appendChild(fila);
+        boton.setAttribute("id", user.idUsuario);
+        boton.setAttribute("onclick", "deleteUser(this.id)")////////////////
+
+      });
+      var list = document.getElementById("lienzo");
+      list.innerHTML = "";
+      list.appendChild(tableResult);
+
+      var botonLienzo = document.getElementById("lienzoAccion");
+      botonLienzo.style.display = '';
+      botonLienzo.setAttribute("onclick", "crearUserModal()");
+      botonLienzo.setAttribute("data-bs-toggle", "modal");
+      botonLienzo.setAttribute("data-bs-target", "#Modal");
+      botonLienzo.innerHTML="Crear Usuario";
     });
 };
 
-function pintarUsuarios(datos) {
-  console.log(datos);
-}
-
-/**Usuarios */
+/**Usuarios *//////////////////////////////////////////////
 
 function buscar() {
   const formDataS = new FormData(document.querySelector("#formSearch"));
@@ -246,6 +339,8 @@ const alertManager = (typeMsg, message) => {
   }, 3500);
 };
 
+/** Modal */
+
 function updateAuthorModal(id) {
   const found = listaAutores.find(element => element.idAutor == id);
   var titleModal = document.getElementById("TitleModal");
@@ -301,6 +396,134 @@ function updateAuthorModal(id) {
   boton.setAttribute("onclick", "updateAuthor()");
 }
 
+function updateBookModal(id) {
+  const found = listaLibros.find(element => element.idLibro == id);
+  var titleModal = document.getElementById("TitleModal");
+  titleModal.innerHTML = "Actualizar Libro";
+
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const idLabel = document.createElement('label');
+  idLabel.innerHTML = "ID: ";
+  formulario.appendChild(idLabel);
+  const idInput = document.createElement('input');
+  idInput.setAttribute("id", "idInput");
+  idInput.disabled = true;
+  idInput.value = found.idLibro;
+  formulario.appendChild(idInput);
+
+  const isbnLabel = document.createElement('label');
+  isbnLabel.innerHTML = "ISBN: ";
+  formulario.appendChild(isbnLabel);
+  const isbnInput = document.createElement('input');
+  isbnInput.setAttribute("id", "isbnInput");
+  isbnInput.value = found.isbn;
+  isbnInput.required = true;
+  formulario.appendChild(isbnInput);
+
+  const editorialLabel = document.createElement('label');
+  editorialLabel.innerHTML = "Editorial: ";
+  formulario.appendChild(editorialLabel);
+  const editorialInput = document.createElement('input');
+  editorialInput.setAttribute("id", "editorialInput");
+  editorialInput.value = found.editorial;
+  editorialInput.required = true;
+  formulario.appendChild(editorialInput);
+
+  const generoLabel = document.createElement('label');
+  generoLabel.innerHTML = "Género: ";
+  formulario.appendChild(generoLabel);
+  const generoInput = document.createElement('input');
+  generoInput.setAttribute("id", "generoInput");
+  generoInput.value = found.genero;
+  generoInput.required = true;
+  formulario.appendChild(generoInput);
+
+  const yearLabel = document.createElement('label');
+  yearLabel.innerHTML = "Fecha Publicación: ";
+  formulario.appendChild(yearLabel);
+  const yearInput = document.createElement('input');
+  yearInput.setAttribute("id", "yearInput");
+  yearInput.value = found.year;
+  yearInput.required = true;
+  formulario.appendChild(yearInput);
+
+  const idAutorLabel = document.createElement('label');
+  idAutorLabel.innerHTML = "ID Autor: ";
+  formulario.appendChild(idAutorLabel);
+  const idAutorInput = document.createElement('input');
+  idAutorInput.setAttribute("id", "idAutorInput");
+  idAutorInput.value = found.idAutor;
+  idAutorInput.required = true;
+  formulario.appendChild(idAutorInput);
+
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Actualizar";
+  boton.setAttribute("onclick", "updateBook()");
+}
+
+function updateUserModal(id) {
+  const found = listaUsuarios.find(element => element.idUsuario == id);
+  var titleModal = document.getElementById("TitleModal");
+  titleModal.innerHTML = "Actualizar Usuario";
+
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const idLabel = document.createElement('label');
+  idLabel.innerHTML = "ID: ";
+  formulario.appendChild(idLabel);
+  const idInput = document.createElement('input');
+  idInput.setAttribute("id", "idInput");
+  idInput.disabled = true;
+  idInput.value = found.idUsuario;
+  formulario.appendChild(idInput);
+
+  const nombreLabel = document.createElement('label');
+  nombreLabel.innerHTML = "Nombre de Usuario: ";
+  formulario.appendChild(nombreLabel);
+  const nombreInput = document.createElement('input');
+  nombreInput.setAttribute("id", "nombreInput");
+  nombreInput.value = found.nombreUsuario;
+  nombreInput.required = true;
+  formulario.appendChild(nombreInput);
+
+  const passLabel = document.createElement('label');
+  passLabel.innerHTML = "Contraseña: ";
+  formulario.appendChild(passLabel);
+  const passInput = document.createElement('input');
+  passInput.setAttribute("id", "passInput");
+  passInput.value = found.password;
+  passInput.required = true;
+  formulario.appendChild(passInput);
+
+  const tipoLabel = document.createElement('label');
+  tipoLabel.innerHTML = "Tipo Usuario: ";
+  formulario.appendChild(tipoLabel);
+  const tipoInput = document.createElement('input');
+  tipoInput.setAttribute("id", "tipoInput");
+  tipoInput.value = found.tipo;
+  tipoInput.required = true;
+  formulario.appendChild(tipoInput);
+
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Actualizar";
+  boton.setAttribute("onclick", "updateUser()");
+}
+
 function updateAuthor() {
   var idAuthor = document.getElementById("idInput").value;
   var cedula = document.getElementById("ccInput").value;
@@ -329,6 +552,60 @@ function updateAuthor() {
     })
 }
 
+function updateBook() {
+  var idBook = document.getElementById("idInput").value;
+  var isbn = document.getElementById("isbnInput").value;
+  var editorial = document.getElementById("editorialInput").value;
+  var genero = document.getElementById("generoInput").value;
+  var year = document.getElementById("yearInput").value;
+  var id_Autor = document.getElementById("idAutorInput").value;
+
+  var objetoLibro = { idLibro: idBook, isbn, editorial, genero, year, idAutor: id_Autor };
+
+  fetch(API_URL + "/libro/update", {
+    method: "PUT",
+    body: JSON.stringify(objetoLibro),
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      listarLibros();
+    })
+    .catch((error) => {
+      alertManager("error", "Libro no encontrado");
+      console.log(error);
+    })
+}
+
+function updateUser() {
+  var idUsuario = document.getElementById("idInput").value;
+  var nombreUsuario = document.getElementById("nombreInput").value;
+  var password = document.getElementById("passInput").value;
+  var tipo = document.getElementById("tipoInput").value;
+
+  var objetoUsuario = { idUsuario, nombreUsuario, password, tipo };
+
+  fetch(API_URL + "/usuario/update", {
+    method: "PUT",
+    body: JSON.stringify(objetoUsuario),
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      listarUsuarios();
+    })
+    .catch((error) => {
+      alertManager("error", "Usuario no encontrado");
+      console.log(error);
+    })
+}
+
 function deleteAuthor(id) {
   fetch(API_URL + "/autor/delete/" + id, {
       method: "DELETE",
@@ -343,7 +620,43 @@ function deleteAuthor(id) {
       }
     }).catch((e) => {
       console.log(e);
-      alertManager("error", "Autor no borrrado");
+      alertManager("error", "Autor no borrado");
+    })
+}
+
+function deleteBook(id) {
+  fetch(API_URL + "/id/" + id, {
+      method: "DELETE",
+      headers: {
+        "tipo": user.tipo
+      }
+    }).then((resp) => {
+      if (resp && resp.ok) {
+        console.log(resp);
+        alertManager("success", "Libro borrado");
+        listarLibros();
+      }
+    }).catch((e) => {
+      console.log(e);
+      alertManager("error", "Libro no borrado");
+    })
+}
+
+function deleteUser(id) {
+  fetch(API_URL + "/usuario/delete/" + id, {
+      method: "DELETE",
+      headers: {
+        "tipo": user.tipo
+      }
+    }).then((resp) => {
+      if (resp && resp.ok) {
+        console.log(resp);
+        alertManager("success", "Usuario borrado");
+        listarUsuarios();
+      }
+    }).catch((e) => {
+      console.log(e);
+      alertManager("error", "Usuario no borrado");
     })
 }
 
@@ -389,14 +702,110 @@ function crearAuthorModal() {
   boton.setAttribute("onclick", "crearAuthor()");
 }
 
+function crearBookModal() {
+  var titleModal = document.getElementById("TitleModal");
+  titleModal.innerHTML = "Actualizar Libros";
+
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const isbnLabel = document.createElement('label');
+  isbnLabel.innerHTML = "ISBN: ";
+  formulario.appendChild(isbnLabel);
+  const isbnInput = document.createElement('input');
+  isbnInput.setAttribute("id", "isbnInput");
+  isbnInput.required = true;
+  formulario.appendChild(isbnInput);
+
+  const editorialLabel = document.createElement('label');
+  editorialLabel.innerHTML = "Editorial: ";
+  formulario.appendChild(editorialLabel);
+  const editorialInput = document.createElement('input');
+  editorialInput.setAttribute("id", "editorialInput");
+  editorialInput.required = true;
+  formulario.appendChild(editorialInput);
+
+  const generoLabel = document.createElement('label');
+  generoLabel.innerHTML = "Género: ";
+  formulario.appendChild(generoLabel);
+  const generoInput = document.createElement('input');
+  generoInput.setAttribute("id", "generoInput");
+  generoInput.required = true;
+  formulario.appendChild(generoInput);
+
+  const yearLabel = document.createElement('label');
+  yearLabel.innerHTML = "Fecha Publicación: ";
+  formulario.appendChild(yearLabel);
+  const yearInput = document.createElement('input');
+  yearInput.setAttribute("id", "yearInput");
+  yearInput.required = true;
+  formulario.appendChild(yearInput);
+
+  const idAutorLabel = document.createElement('label');
+  idAutorLabel.innerHTML = "ID Autor: ";
+  formulario.appendChild(idAutorLabel);
+  const idAutorInput = document.createElement('input');
+  idAutorInput.setAttribute("id", "idAutorInput");
+  idAutorInput.required = true;
+  formulario.appendChild(idAutorInput);
+
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Crear";
+  boton.setAttribute("onclick", "crearBook()");
+}
+
+function crearUserModal() {
+  var titleModal = document.getElementById("TitleModal");
+  titleModal.innerHTML = "Actualizar Usuarios";
+
+  var contentModal = document.getElementById("contentModal");
+  contentModal.innerHTML = "";
+
+  const formulario = document.createElement('form');
+  formulario.setAttribute("id", "formActualizar");
+  formulario.setAttribute("class", "form-group");
+
+  const nombreLabel = document.createElement('label');
+  nombreLabel.innerHTML = "Nombre de Usuario: ";
+  formulario.appendChild(nombreLabel);
+  const nombreInput = document.createElement('input');
+  nombreInput.setAttribute("id", "nombreInput");
+  nombreInput.required = true;
+  formulario.appendChild(nombreInput);
+
+  const passLabel = document.createElement('label');
+  passLabel.innerHTML = "Contraseña: ";
+  formulario.appendChild(passLabel);
+  const passInput = document.createElement('input');
+  passInput.setAttribute("id", "passInput");
+  passInput.required = true;
+  formulario.appendChild(passInput);
+
+  const tipoLabel = document.createElement('label');
+  tipoLabel.innerHTML = "Tipo Usuario: ";
+  formulario.appendChild(tipoLabel);
+  const tipoInput = document.createElement('input');
+  tipoInput.setAttribute("id", "tipoInput");
+  tipoInput.required = true;
+  formulario.appendChild(tipoInput);
+
+  contentModal.appendChild(formulario);
+
+  var boton = document.getElementById("modalButton");
+  boton.innerHTML = "Crear";
+  boton.setAttribute("onclick", "crearUser()");
+}
+
 function crearAuthor(){
   var cedula = document.getElementById("ccInput").value;
   var nombre = document.getElementById("nombreInput").value;
   var nacion = document.getElementById("nacionInput").value;
-
-  var objetoAutor = { cedula, nombreCompleto: nombre, nacionalidad: nacion };
-
-  console.log(objetoAutor);
 
   fetch(`${API_URL}/autor/create/${nombre}/${nacion}/${cedula}`, {
     method: "POST",
@@ -412,6 +821,56 @@ function crearAuthor(){
     })
     .catch((error) => {
       alertManager("error", "Autor no creado");
+      console.log(error);
+    })
+
+}
+
+function crearBook(){
+  var isbn = document.getElementById("isbnInput").value;
+  var editorial = document.getElementById("editorialInput").value;
+  var genero = document.getElementById("generoInput").value;
+  var year = document.getElementById("yearInput").value;
+  var id_Autor = document.getElementById("idAutorInput").value;
+
+  fetch(`${API_URL}/autor/create/${genero}/${editorial}/${isbn}/${year}/${id_Autor}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      alertManager("success", "Libro creado");
+      console.log(res);
+      listarAutores();
+    })
+    .catch((error) => {
+      alertManager("error", "Libro no creado");
+      console.log(error);
+    })
+
+}
+
+function crearUser(){
+  var nombreUsuario = document.getElementById("nombreInput").value;
+  var password = document.getElementById("passInput").value;
+  var tipo = document.getElementById("tipoInput").value;
+
+  fetch(`${API_URL}/usuario/create/${nombreUsuario}/${password}/${tipo}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "tipo": user.tipo
+    },
+  }).then((res) => res.json())
+    .then((res) => {
+      alertManager("success", "Usuario creado");
+      console.log(res);
+      listarUsuarios();
+    })
+    .catch((error) => {
+      alertManager("error", "Usuario no creado");
       console.log(error);
     })
 
