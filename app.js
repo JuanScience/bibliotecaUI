@@ -6,6 +6,9 @@ const encabezadosAutores = ['ID', 'Cédula', 'Nombre Completo', 'Nacionalidad', 
 const encabezadosLibros = ['ID', 'ISBN', 'Editorial', 'Género', 'Fecha Publicación', 'ID Autor', '', ''];
 const encabezadosUsuarios = ['ID', 'Nombre de Usuario', 'Contraseña', 'tipo', '', ''];
 
+const encabezadosAutor = ['ID', 'Cédula', 'Nombre Completo', 'Nacionalidad'];
+const encabezadosLibro = ['ID', 'ISBN', 'Editorial', 'Género', 'Fecha Publicación', 'ID Autor'];
+
 let listaAutores = [];
 let listaLibros = [];
 let listaUsuarios = [];
@@ -18,7 +21,7 @@ let authorFound = {};
 function elementosSalir() {
   user = {};
   document.getElementById("barraAdministrador").style.display = 'none';
-  document.getElementById("barraUsuario").style.display = 'none';
+  document.getElementById("barraBuscar").style.display = 'none';  
   document.getElementById("barraSalir").style.display = 'none';  
   document.getElementById("lienzoAccion").style.display = 'none';
   document.getElementById("ingreso").style.display = 'inline';
@@ -28,7 +31,7 @@ function elementosSalir() {
 
 function elementosAdministrador() {
   document.getElementById("barraAdministrador").style.display = '';
-  document.getElementById("barraUsuario").style.display = 'none';
+  document.getElementById("barraBuscar").style.display = 'none';  
   document.getElementById("barraSalir").style.display = '';
   document.getElementById("ingreso").style.display = 'none';
 };
@@ -36,7 +39,7 @@ function elementosAdministrador() {
 function elementosUsuario() {
   console.log("usuario....");
   document.getElementById("barraAdministrador").style.display = 'none';
-  document.getElementById("barraUsuario").style.display = '';
+  document.getElementById("barraBuscar").style.display = '';  
   document.getElementById("barraSalir").style.display = '';
   document.getElementById("ingreso").style.display = 'none';
   document.getElementById("lienzoAccion").style.display = 'none';
@@ -63,6 +66,7 @@ function login() {
     .then((res) => res.json())
     .catch((error) => {
       alertManager("error", "Usuario o contraseña inválidos");
+      elementosSalir();
       document.querySelector("#formLogin").reset();
       user = {};
     })
@@ -286,38 +290,55 @@ function listarUsuarios() {
 
 /**Usuarios */
 
-
-function buscar() {
-  var busqueda = API_URL + "/cedula/" + document.getElementById("textcc").value;
-  console.log(busqueda);
-  if (busqueda === undefined) {
+function buscar() {//Búsqueda de autor por cédula
+  authorFound = {};
+  var cedula = document.getElementById("textcc").value;
+  if (cedula === undefined) {
     alertManager("error", "Ingrese la cédula");
   }
-  else {
-    fetch(busqueda, {
+  else {   
+    console.log(API_URL+"/autor/buscar/"+cedula); 
+    fetch(`${API_URL}/autor/buscar/${cedula}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     }).then((res) => res.json())
         .catch((error) => {
-        alertManager("error", "Falla en la búsqueda");
+        console.log(error);
+        alertManager("error", "Autor no encontrado");
+        HTMLResponse.innerHTML = "";
       }).then((res) => {
-        if (!res) {
-          console.log(res, "Autor no encontrado");
+        if (!res || res === undefined) {
+          console.log("Autor no encontrado");
+          HTMLResponse.innerHTML = "";
         }else{
-          console.log(res, "Primero");
-          alertManager("error", "Greatttttttt");
+          listaAutores = res;
+          console.log(listaAutores);
+          var tableResult = document.createElement('table');
+          tableResult.classList.add('table');
+          tableResult.classList.add('table-borderless');
+          let fila = document.createElement('tr');
+          fila.classList.add('table-dark');
+          encabezadosAutor.forEach((t) => {
+            let columna = document.createElement('th');
+            columna.appendChild(document.createTextNode(t));
+            fila.appendChild(columna);
+          });
+          tableResult.appendChild(fila);
+          let fila1 = document.createElement('tr');
+          Object.values(listaAutores).forEach((i) => {
+            let columna = document.createElement('td');
+            columna.appendChild(document.createTextNode(i));
+            fila1.appendChild(columna);
+          });          
+          tableResult.appendChild(fila1);
+          HTMLResponse.innerHTML = "";
+          HTMLResponse.appendChild(tableResult);
+          buscarLibros(listaAutores);
         }
-        elementosUsuario();
-          
-        //obAutor = res;
-        
-        //buscarLibros(obAutor);        
-        
       })
   }
-
 };
 
 function buscarLibros(obAutor) {
@@ -331,14 +352,31 @@ function buscarLibros(obAutor) {
       alertManager("error", "Autor no encontrado");
     })
     .then((res) => {
-      obLibros = res;
-      pintarBusqueda(obAutor, obLibros);
-    })
-};
+      listaLibros = res;
+      var tableResult = document.createElement('table');
+      tableResult.classList.add('table');
+      tableResult.classList.add('table-borderless');
+      let fila = document.createElement('tr');
+      fila.classList.add('table-dark');
+      encabezadosLibro.forEach((t) => {
+        let columna = document.createElement('th');
+        columna.appendChild(document.createTextNode(t));
+        fila.appendChild(columna);
+      });
+      tableResult.appendChild(fila);
+      res.forEach((book) => {
+        let fila = document.createElement('tr');
+        Object.values(book).forEach((i) => {
+          let columna = document.createElement('td');
+          columna.appendChild(document.createTextNode(i));
+          fila.appendChild(columna);
+        });
+        tableResult.appendChild(fila);
+      });
 
-function pintarBusqueda(obAutor, ListLibros) {
-  console.log(obAutor);
-  console.log(ListLibros);
+      HTMLResponse.appendChild(tableResult);
+
+    })
 };
 
 /** ALERT */
